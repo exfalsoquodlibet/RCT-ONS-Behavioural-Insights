@@ -1,6 +1,6 @@
 # Behavioural Insights for businesses: a Randomised Control Trial (RCT) at ONS
 
-This project provides the R code for the a-priori sample size calculation and the random assignment to experimental conditions for the two-arm stratified Randomized Control Trial (RCT) that I designed and delivered at the UK Office for National Statisics (ONS) in 2018.
+This project provides the R code for the a-priori sample size calculation and the random assignment to experimental conditions for the two-arm stratified Randomized Control Trial (RCT) (i.e., A/B testing in geeks terminology) that I designed and delivered at the UK Office for National Statisics (ONS) in 2018.
 
 The project was the first application of behavioural science principles and RCTs to businesses at the ONS and successfully increased the number of businesses that returned the survey questionnaire by the specified deadline, thereby reducing resources spent response chasing.
 
