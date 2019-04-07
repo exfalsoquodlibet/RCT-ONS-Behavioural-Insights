@@ -32,18 +32,49 @@ We will:
 6. To determine a-priori sample size to detect the desired effect for the desired power, we'll search over possible n values of N, re-run steps 3-5 for each value of N, to find the value that yeilds our desire power.
 
 
-
-
 ```{r cars}
-summary(cars)
+
+
 ```
 
 ### Step 1: Determine minimal effect of practical significance
 
-Looking a historical data of the ONS Construction Survey 
-```{r pressure, echo=FALSE}
-plot(pressure)
+The trial focused on the April 2018 data for businesses that newly joined the survey between January and April 2018, and May 2018 data for businesses that newly joined the survey in that month. 
+
+Using the historical data of the ONS Construction Survey, we could calculate the baseline (i.e., control-group) response rate by-deadline. This was the weighted average of the past response rate by-deadline of businesses that newly joined the survey in Jan-May in previous years.
+Three categories of baseline response rates depending:
+
+- April baseline for businesses which newly joined in January, February or March (`apr_prev_p0`)
+- April baseline for businesses which newly joined in that month (`apr_new_p0`)
+- May baseline for businesses which newly joined in that month (`may_new_p0`)
+
+```{r baselines, echo=TRUE}
+apr_new_p0 = 0.14
+apr_prev_p0 = 0.17
+may_new_p0 = 0.29
+
+# control-group baseline as weighted average of past response rate by deadline
+baseline_p0 <- (apr_new_p0 + apr_prev_p0*3 + may_new_p0)/5
+
 ```
+
+The minimum intervention effect can be seen as the minimum odds ratio of practical interest associated with intervention allocation. In our case, we established that an increase of 4 percentage points in the rate of businesses that respond by the deadline would be consider successful in terms of saving resources for response chasing.
+
+```{r min_effect, echo=TRUE}
+
+# minimum desired effect
+min_de <- 0.04
+
+intervention_p1 <- baseline_p0 + min_de
+
+( odds_intervention <-  intervention_p1/(1-intervention_p1) )
+( odds_baseline <-  baseline_p0/(1-baseline_p0) )
+( odds_ratio <- odds_intervention / odds_baseline )
+
+# minimum desired effect as log-odds given the expected control-group frequency
+( beta_logodds <- log(odds_ratio))
+```
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
