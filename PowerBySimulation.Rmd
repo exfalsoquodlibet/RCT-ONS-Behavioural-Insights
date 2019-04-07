@@ -1,0 +1,58 @@
+---
+title: "A-Priori Power Simulation"
+author: "Alessia Tosi"
+date: "15/01/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+In this script, I calculate the sample size necessary to detect the minimal effect of practical significance given the desired power using simulation.
+
+The RCT trial design is a two-arm or between-subject design. Stratification was used to control for possible confounding factors with Month of First Selection (Jan-May) as stratifying variable.
+
+
+### Steps
+
+Our data will be binary (1 if the business has complied on time, 0 otherwise) and we'll analyse them using a generalised linear model with a logit link function (i.e., logistic regression).
+
+We will:
+
+1. Establish the effect that we want to be able to detect (the minimal effect size that is of PRACTICAL significance, i.e. that we want to be able to pick up if it is there) and sample size N
+
+3. Simulate N data for that possible effect, and do the analyse on this simulated data. 
+
+4. Collect the p-value or test statistics.
+
+5. Re-run steps 3-4 a bunch of times (i.e., 1000 repetition). The proportion of times that we'll reject the null hypothesis is the power at that N.
+
+6. To determine a-priori sample size to detect the desired effect for the desired power, we'll search over possible n values of N, re-run steps 3-5 for each value of N, to find the value that yeilds our desire power.
+
+
+
+
+```{r cars}
+summary(cars)
+```
+
+### Step 1: Determine minimal effect of practical significance
+
+Looking a historical data of the ONS Construction Survey 
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+### References
+
+https://stats.stackexchange.com/questions/22406/power-analysis-for-ordinal-logistic-regression/22410#22410
+
+https://stats.stackexchange.com/questions/35940/simulation-of-logistic-regression-power-analysis-designed-experiments/36040#36040
+
+https://stats.stackexchange.com/questions/111308/why-is-power-analysis-with-logistic-regression-so-liberal-compared-to-chi-square?rq=1
+
