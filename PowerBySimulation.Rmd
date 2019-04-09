@@ -77,12 +77,12 @@ intervention_p1 <- baseline_p0 + min_de
 
 ### Step 2-4: Simulate N data for that possible effect, and do the analyse on this simulated data. 
 
-Let us choose an arbitrary sample size of 4000 businesses and calculate what the power to detect our minimum desired effect (i.e., an increase of 4 percentage points in the rate of businesses that respond by deadline) would be.
+Let us assume a sample size N = 2300 businesses and calculate what the power to detect our minimum desired effect (i.e., an increase of 4 percentage points in the rate of businesses that respond by the deadline) would be.
 
 Set sample size N:
 
 ```{r sample_N, echo=TRUE}
-N = 4000
+N = 2300
 
 # sample size in each group (taking into account strata)
 n = N/10
