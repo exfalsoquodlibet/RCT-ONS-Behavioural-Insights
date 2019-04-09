@@ -1,37 +1,37 @@
-A-Priori Power Simulation
+A-Priori Power by Simulation
 ================
 Alessia Tosi
 15/01/2018
 
 In this script, I calculate the sample size necessary to detect the minimal effect of practical significance given the desired power using simulation.
 
-The RCT trial design is a two-arm or between-subject design. Stratification was used to control for possible confounding factors with Month of First Selection (Jan-May) as stratifying variable.
+The behavioural-insights RCT for the ONS Construction Survey uses a two-arm (or between-subject) design. Stratification was used to control for possible confounding factors with Month of First Selection (Jan-May) as stratifying variable.
 
 ### Steps
 
-Our data will be binary (1 if the business has complied on time, 0 otherwise) and we'll analyse them using a generalised linear model with a logit link function (i.e., logistic regression).
+Our data will be binary (1 if the business has responded by the deadline, 0 otherwise) and we'll analyse them using a generalised linear model (GLM) with a logit link function.
 
 We will:
 
 1.  Establish the effect that we want to be able to detect (the minimal effect size that is of PRACTICAL significance, i.e. that we want to be able to pick up if it is there) and sample size N
 
-2.  Simulate N data for that possible effect, and do the analyse on this simulated data.
+2.  Simulate N data for that possible effect, and do the GLM analysis on this simulated data.
 
-3.  Collect the p-value or test statistics.
+3.  Collect the significant test result for the inervention effect.
 
-4.  Re-run steps 3-4 a bunch of times (i.e., 1000 repetition). The proportion of times that we'll reject the null hypothesis is the power at that N.
+4.  Re-run steps 3-4 a number of times (i.e., 1000 repetition). The proportion of times that we'll reject the null hypothesis is the power at that N.
 
 5.  To determine a-priori sample size to detect the desired effect for the desired power, we'll search over possible n values of N, re-run steps 3-5 for each value of N, to find the value that yeilds our desire power.
 
 ### Step 1: Determine minimal effect of practical significance
 
-The trial focused on the April 2018 data for businesses that newly joined the survey between January and April 2018, and May 2018 data for businesses that newly joined the survey in that month.
+The trial focuses on the April 2018 data for businesses that newly joined the survey between January and April 2018, and May 2018 data for businesses that newly join the survey in that month.
 
-Using the historical data of the ONS Construction Survey, we could calculate the baseline (i.e., control-group) response rate by-deadline. This was the weighted average of the past response rate by-deadline of businesses that newly joined the survey in Jan-May in previous years. Three categories of baseline response rates depending:
+Using historical data of the ONS Construction Survey, we can estimate the baseline (i.e., control-group) pre-deadline response rate. This is the weighted average of the pre-deadline response rates for the month of April and May in previous years, consisting of:
 
--   April baseline for businesses which newly joined in January, February or March (`apr_prev_p0`)
--   April baseline for businesses which newly joined in that month (`apr_new_p0`)
--   May baseline for businesses which newly joined in that month (`may_new_p0`)
+-   historical April pre-deadline response rate for businesses which newly joined in January, February or March (`apr_prev_p0`)
+-   historical April pre-deadline response rate for businesses which newly joined in that month (`apr_new_p0`)
+-   historical May pre-deadline response rate for businesses which newly joined in that month (`may_new_p0`)
 
 ``` r
 apr_new_p0 = 0.14
@@ -42,7 +42,7 @@ may_new_p0 = 0.29
 baseline_p0 <- (apr_new_p0 + apr_prev_p0*3 + may_new_p0)/5
 ```
 
-The minimum intervention effect can be seen as the minimum odds ratio of practical interest associated with intervention allocation. In our case, we established that an increase of 4 percentage points in the rate of businesses that respond by the deadline would be consider successful in terms of saving resources for response chasing.
+The minimum intervention effect can be seen as the minimum odds ratio of practical interest associated with intervention allocation. In our case, we established that an increase of 4 percentage points in the rate of businesses that respond to the survey by the deadline would be considered successful in terms of resources saved from response chasing.
 
 ``` r
 # minimum desired effect
@@ -76,12 +76,12 @@ intervention_p1 <- baseline_p0 + min_de
 
 ### Step 2-4: Simulate N data for that possible effect, and do the analyse on this simulated data.
 
-Let us choose an arbitrary sample size of 4000 businesses and calculate what the power to detect our minimum desired effect (i.e., an increase of 4 percentage points in the rate of businesses that respond by deadline) would be.
+Let us assume a sample size N = 2300 businesses and calculate what the power to detect our minimum desired effect (i.e., an increase of 4 percentage points in the rate of businesses that respond by the deadline) would be.
 
 Set sample size N:
 
 ``` r
-N = 4000
+N = 2300
 
 # sample size in each group (taking into account strata)
 n = N/10
@@ -147,15 +147,15 @@ endT-startT
 ```
 
     ## elapsed 
-    ##   15.62
+    ##   9.807
 
-If there was an effect of +4% in timed responses due to the intervention (from baseline 18.8% to 22.8% (i.e., odds ratio of 1.2756036) and we had a sample size of 4000 units (businesses), then we would have 0.928 power to detect that effect.
+If there was an effect of +4% in timed responses due to the intervention (from baseline 18.8% to 22.8% (i.e., odds ratio of 1.2756036) and we had a sample size of 2300 units (businesses), then we would have 0.757 power to detect that effect.
 
 ``` r
 sum(significant[,1])/repetitions
 ```
 
-    ## [1] 0.928
+    ## [1] 0.757
 
 ### References
 
