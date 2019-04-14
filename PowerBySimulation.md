@@ -17,7 +17,7 @@ We will:
 
 2.  Simulate N data for that possible effect, and do the GLM analysis on this simulated data.
 
-3.  Collect the significant test result for the inervention effect.
+3.  Collect the significant test result for the intervention effect.
 
 4.  Re-run steps 3-4 a number of times (i.e., 1000 repetition). The proportion of times that we'll reject the null hypothesis is the power at that N.
 
@@ -27,7 +27,7 @@ We will:
 
 The trial focuses on the April 2018 data for businesses that newly joined the survey between January and April 2018, and May 2018 data for businesses that newly join the survey in that month.
 
-Using historical data of the ONS Construction Survey, we can estimate the baseline (i.e., control-group) pre-deadline response rate. This is the weighted average of the pre-deadline response rates for the month of April and May in previous years, consisting of:
+Using historical data of the ONS Construction Survey, we can estimate the baseline (i.e., control-group) pre-deadline response rate. This is the weighted average of the pre-deadline response rates for the month of April and May in previous years, specifically:
 
 -   historical April pre-deadline response rate for businesses which newly joined in January, February or March (`apr_prev_p0`)
 -   historical April pre-deadline response rate for businesses which newly joined in that month (`apr_new_p0`)
@@ -147,9 +147,9 @@ endT-startT
 ```
 
     ## elapsed 
-    ##   9.807
+    ##  18.891
 
-If there was an effect of +4% in timed responses due to the intervention (from baseline 18.8% to 22.8% (i.e., odds ratio of 1.2756036) and we had a sample size of 2300 units (businesses), then we would have 0.757 power to detect that effect.
+If there was an effect of +4 percentage points in timed responses due to the intervention (from baseline 18.8% to 22.8% (i.e., odds ratio of 1.2756036) and we had a sample size of 2300 businesses, then we would have 0.757 power to detect that effect.
 
 ``` r
 sum(significant[,1])/repetitions
