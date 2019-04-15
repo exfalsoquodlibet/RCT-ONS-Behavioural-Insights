@@ -5,7 +5,7 @@ Alessia Tosi
 
 In this script, I calculate the sample size necessary to detect the minimal effect of practical significance given the desired power using simulation.
 
-The behavioural-insights RCT for the ONS Construction Survey uses a two-arm (or between-subject) design. Stratification was used to control for possible confounding factors with Month of First Selection (Jan-May) as stratifying variable.
+The behavioural-insights RCT for the ONS Construction Survey uses a two-arm (i.e., between-subject) design. Stratification was used to control for possible confounding factors with Month of First Selection (Jan-May) as stratifying variable.
 
 ### Steps
 
@@ -19,9 +19,9 @@ We will:
 
 3.  Collect the significant test result for the intervention effect.
 
-4.  Re-run steps 3-4 a number of times (i.e., 1000 repetition). The proportion of times that we'll reject the null hypothesis is the power at that N.
+4.  Re-run steps 3-4 a number of times (e.g., 1000 repetition). The proportion of times that we'll reject the null hypothesis is the power at that N.
 
-5.  To determine a-priori sample size to detect the desired effect for the desired power, we'll search over possible n values of N, re-run steps 3-5 for each value of N, to find the value that yeilds our desire power.
+5.  To determine the a-priori sample size to detect the desired effect for the desired power, we'll search over possible n values of N, re-run steps 2-4 for each value of N, and find the value that yeilds our desire power.
 
 ### Step 1: Determine minimal effect of practical significance
 
@@ -147,7 +147,7 @@ endT-startT
 ```
 
     ## elapsed 
-    ##  18.891
+    ##  14.897
 
 If there was an effect of +4 percentage points in timed responses due to the intervention (from baseline 18.8% to 22.8% (i.e., odds ratio of 1.2756036) and we had a sample size of 2300 businesses, then we would have 0.757 power to detect that effect.
 
@@ -156,6 +156,65 @@ sum(significant[,1])/repetitions
 ```
 
     ## [1] 0.757
+
+### Step 5: Determine the sample size to detect the desired effect given the desired power
+
+To determine the a-priori sample size to detect the desired effect for the desired power, we'll search over possible n values of N, re-run steps 2-4 for each value of N, to find the value that yeilds our desire power.
+
+To do this, I created a function, `power_by_sim_fun()` that reproduces steps 2-4 above.
+
+``` r
+source("power_by_sim_fun.R")
+```
+
+Let's take a look a its arguments but you can find more info in the .R file.
+
+``` r
+args(power_by_sim_fun)
+```
+
+    ## function (N = 2300, min_de = 0.04, repetitions = 1000, n_conditions = 2, 
+    ##     n_strata = 5, names_strata = c("jan", "feb", "mar", "apr", 
+    ##         "may"), baselines = c(0.17, 0.17, 0.17, 0.14, 0.29), 
+    ##     baseline_factor = 0, one_side_test = TRUE) 
+    ## NULL
+
+Let's iterate over possible sample size values N and possible baseline response rates.
+
+``` r
+# WARNING: it will take a while...
+
+num_rows <- length(bf_pool)
+
+collect_results_perN <- list()    # empty list to collect results
+
+index = 0
+
+set.seed(321)
+
+for (n in N_pool){      # iterate over possible sample size values N
+      index = index + 1 
+      collect_bf_results <- matrix(nrow = num_rows, ncol=3)
+      collect_bf_results[, 3] <- n
+      
+      for (i in 1:length(bf_pool)){ # iterate over possible baseline response rates
+            bf <- bf_pool[i]
+            collect_bf_results[i, 1] <- bf
+            collect_bf_results[i, 2] <- power_by_sim_fun(rep=1000, N=n, baseline_factor=bf, min_de=0.04)
+            
+            }
+      
+      collect_results_perN[[index]] <- as.data.frame(collect_bf_results)
+      }
+
+
+power_results_df <- do.call('rbind', collect_results_perN)
+colnames(power_results_df) <- c('baseline_factor', 'power', 'sample_size_N')
+```
+
+As the plot below shows, a sample size between 2400 and 2600 would give us a power between 0.765 and 0.852 to detect our minimum desired effect, depending on the deviation of the by-deadline response rate in the observed control group compared to the historical rate.
+
+![](PowerBySimulation_files/figure-markdown_github/plot-1.png)
 
 ### References
 
