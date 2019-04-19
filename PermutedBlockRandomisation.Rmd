@@ -21,7 +21,7 @@ bsn_df <- read.csv("Data/TrialSample_JanApr_full.csv", header=T, sep=';', string
 
 # clean size variable 
 bsn_df <- bsn_df %>%
-      mutate(size = if_else(size == 'Oct-19', '1019', if_else(size == '05-Sep', '0509', if_else(size == '0-4', '0504', size))))
+      mutate(size = if_else(size == 'Oct-19', '1019', if_else(size == '05-Sep', '0509', if_else(size == '0-4', '0004', size))))
 
 ```
 

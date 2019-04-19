@@ -48,12 +48,12 @@ head(list_of_strata_df[[1]])
 ```
 
     ##        ID period_first_selected selected_for_201804 size_band size
-    ## 1568 1568                201804                   Y         1 0504
-    ## 1388 1388                201804                   Y         1 0504
-    ## 1763 1763                201804                   Y         1 0504
-    ## 1273 1273                201804                   Y         1 0504
-    ## 614   614                201804                   Y         1 0504
-    ## 72     72                201804                   Y         1 0504
+    ## 1568 1568                201804                   Y         1 0004
+    ## 1388 1388                201804                   Y         1 0004
+    ## 1763 1763                201804                   Y         1 0004
+    ## 1273 1273                201804                   Y         1 0004
+    ## 614   614                201804                   Y         1 0004
+    ## 72     72                201804                   Y         1 0004
     ##      newly_selected_month
     ## 1568                  Apr
     ## 1388                  Apr
@@ -108,7 +108,7 @@ We verify that we obtained a balance design:
 with(random_assigned_bsn_df, xtabs(~treatment + newly_selected_month + size))
 ```
 
-    ## , , size = 0504
+    ## , , size = 0004
     ## 
     ##          newly_selected_month
     ## treatment Apr Feb Jan Mar
