@@ -9,7 +9,7 @@ In this script,
 
 1.  I perform a stratified randomisation, with Month of first selection (Jan-April) and business size (0-4, 5-9, and 10-19) as prognostic (i.e., stratifying) variables. This produces 12 strata which will then be taken into account in the analysis model.
 
-2.  I then use a permuted block randomisation with varying block sizes process to randomly assign businesses to condition within each strata. That means:
+2.  I then use a permuted block randomisation with varying block sizes to randomly assign businesses to conditions within each strata. That means:
 
     -   Businesses are randomly assigned with a 1:1 ratio to Control vs. Intervention.
     -   I perform the assignment according to a computer-generated random sequence in permuted block of (2,4,6,8) within each strata.
@@ -24,7 +24,7 @@ In this script,
 
 ### Data
 
-Data has been previously-preprocessed and fully anonymised. A subse of the tidy anonymised data are available in the Data folder.
+The data have been previously-preprocessed and fully anonymised. A subset of the tidy anonymised data are available in the Data folder.
 
 ### 1. Stratification
 
@@ -35,7 +35,7 @@ set.seed(42)
 bsn_df <- bsn_df[sample(nrow(bsn_df)),]
 ```
 
-Split data into individual strata datasets (one for each strata)
+Split data into individual strata datasets (i.e., one for each strata)
 
 ``` r
 list_of_strata_df <- split(bsn_df, list(factor(bsn_df$newly_selected_month), factor(bsn_df$size)))
@@ -43,33 +43,44 @@ list_of_strata_df <- split(bsn_df, list(factor(bsn_df$newly_selected_month), fac
 
 Let's take a look at one:
 
-Create lookup named vector with the names of the strata as names, and the number of cases in each strata as elements. This vector will be the main input to the `?blockrand::blockrand` function (as `n`, the "number of subjects to randomise") that we will use for our randomisation.
-
 ``` r
-strata_table <- bsn_df %>% 
-      group_by(newly_selected_month, size) %>% 
-      count()
-
-strata_table$stratum <- with(strata_table, interaction(newly_selected_month, size))
-
-# create a lookup named vector with stratum as name, and size of stratum n as elements
-strata_vec <- setNames(strata_table[['n']], as.character(strata_table[['stratum']]))
+head(list_of_strata_df[[1]])
 ```
 
-    ## Apr.0504 Apr.0509 Apr.1019 Feb.0504 Feb.0509 Feb.1019 Jan.0504 Jan.0509 
-    ##      314      110       33      231       80       20      338      272 
-    ## Jan.1019 Mar.0504 Mar.0509 Mar.1019 
-    ##       75      271      112       34
+    ##        ID period_first_selected selected_for_201804 size_band size
+    ## 1568 1568                201804                   Y         1 0504
+    ## 1388 1388                201804                   Y         1 0504
+    ## 1763 1763                201804                   Y         1 0504
+    ## 1273 1273                201804                   Y         1 0504
+    ## 614   614                201804                   Y         1 0504
+    ## 72     72                201804                   Y         1 0504
+    ##      newly_selected_month
+    ## 1568                  Apr
+    ## 1388                  Apr
+    ## 1763                  Apr
+    ## 1273                  Apr
+    ## 614                   Apr
+    ## 72                    Apr
 
 ### 2. Randomisation
 
-Stratified randomisation with block random assignment to condition within each strata (with varying-size blocks).
+In order to achieve stratified randomisation with block random assignment to condition within each strata (with varying-size blocks), we'll use the `? blockrand::blockrand` function and apply it to our list of lists.
 
-To do this, I create a custom function that embed `blockrand::blockrand` and that allows us to iterate the generation of randomisation sequences for our strata.
+Let's take a look at the arguments that `blockrand::blockrand` requires:
+
+-   `n` This is the number of businesses to randomise in each strata
+-   `num.levels` The number of conditions to randomise between, 2 in our cases
+-   `levels` The names of the conditions, so `c("Control","BI")` in our case
+-   `id.prefix` Prefix for the id column values, we'll use the stratum name
+-   `stratum` Character string specifying the stratum generated, again the stratum name
 
 Note that the `blockrand::blockrand` function uses the `sample` function internally to generate the blocks, so we'll use `set.seed` to define the RNG seed to enable us to reproduce the block sequencing in the future at implmentation.
 
+We will also make sure that the randomisation sequence is as long as the number of cases in each stratum. This is necessary as the number of randomizations may end up being more than n (see `?blockrand`).
+
 ``` r
+set.seed(123)
+
 list_of_strata_df_2 <- lapply(names(list_of_strata_df), function(x) blockrand::blockrand(
       n = dim(list_of_strata_df[[x]])[1],
       num.levels = 2, 
@@ -77,11 +88,43 @@ list_of_strata_df_2 <- lapply(names(list_of_strata_df), function(x) blockrand::b
       id.prefix = x, 
       block.prefix = x, 
       stratum = x)[
-            1:dim(list_of_strata_df[[x]])[1],] #number of randomizations may end up being more than n (see ?blockrand) so this is to make sure it's of the right length
+            1:dim(list_of_strata_df[[x]])[1],] #Ensures number of randomisations is of right length
       )
 ```
 
+Finally, we append the randomisation list to the original list of strata to assign businesses to experimental conditions.
+
 ``` r
-# TODO
-#do.call(cbind, list(list_of_strata_df[[1]], list_of_strata_df_2[[1]]))
+random_assigned_bsn_df <- NULL
+
+for(l_idx in 1:length(list_of_strata_df)){
+      random_assigned_bsn_df <- rbind(random_assigned_bsn_df, do.call(cbind, list(list_of_strata_df[[l_idx]], list_of_strata_df_2[[l_idx]])))
+}
 ```
+
+We verify that we obtained a balance design:
+
+``` r
+with(random_assigned_bsn_df, xtabs(~treatment + newly_selected_month + size))
+```
+
+    ## , , size = 0504
+    ## 
+    ##          newly_selected_month
+    ## treatment Apr Feb Jan Mar
+    ##   BI      157 116 169 135
+    ##   Control 157 115 169 136
+    ## 
+    ## , , size = 0509
+    ## 
+    ##          newly_selected_month
+    ## treatment Apr Feb Jan Mar
+    ##   BI       55  40 136  56
+    ##   Control  55  40 136  56
+    ## 
+    ## , , size = 1019
+    ## 
+    ##          newly_selected_month
+    ## treatment Apr Feb Jan Mar
+    ##   BI       17  10  38  17
+    ##   Control  16  10  37  17
